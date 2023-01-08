@@ -1,5 +1,5 @@
 # Cazador de tesoros
-Instrucciones de uso:
+Instrucciones del juego:
 - Utilice las teclas (W, A, S, D) para moverse dentro del menú y la partida.
 - Presione ENTER para entrar en la sección señalada.
 - Las estadísticas de la partida con menos movimientos y del último juego, sólo serán guardadas durante la ejecución del programa.
