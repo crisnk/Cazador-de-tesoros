@@ -20,16 +20,22 @@ struct cazador posicion;
 int movimientos, tesoros;
 // Funciones principales
 int seccionMenu();
+int seleccionarDificultad();
 void mostrarMenu(char menu[10][40]);
+void mostrarMenuDificultad(char menuDificultad[9][40]);
 void llenarMatriz(char matriz[10][modo.ancho]);
 void imprimirMatriz(char matriz[10][modo.ancho]);
 //  Modos
 void modoFacil();
 void modoMedio();
 void modoDificil();
-// Movimientos
+// Movimientos menu principal
 int moverDerechaMenu(char menu[10][40], int puntero);
 int moverIzquierdaMenu(char menu[10][40], int puntero);
+// Movimientos menu dificultad
+int moverArribaMenuDificultad(char menu[9][40], int puntero);
+int moverAbajoMenuDificultad(char menu[9][40], int puntero);
+// Movimientos cazador
 struct cazador moverDerecha(char matriz[10][modo.ancho]);
 struct cazador moverIzquierda(char matriz[10][modo.ancho]);
 struct cazador moverArriba(char matriz[10][modo.ancho]);
@@ -37,23 +43,24 @@ struct cazador moverAbajo(char matriz[10][modo.ancho]);
 
 int main()
 {
-    int dificultad = 0, opcionMenu = seccionMenu();
+    int dificultad = 0, opcionMenu = 0;
 
     while (opcionMenu != 2)
+    
     {
+        opcionMenu = seccionMenu();
         if (opcionMenu == 1) // Jugar
         {
-            dificultad = // seccionMenu();
+            dificultad = seleccionarDificultad();
 
-                if (dificultad == 1)
-                    modoFacil();
+            if (dificultad == 1)
+                modoFacil();
 
             if (dificultad == 2)
                 modoMedio();
 
             if (dificultad == 3)
                 modoDificil();
-        
         }
         if (opcionMenu == 2) // Salir
             break;
@@ -64,36 +71,71 @@ int main()
 // Funciones principales
 int seccionMenu()
 {
-    int X, Y, opcion, puntero = 8; // 8, 26
+    int opcion, puntero = 7; // 7, 25
     char tecla;
     char menu[10][40] = {"*--------------------------------------*",
                          "|          CAZADOR DE TESOROS          |",
                          "|--------------------------------------|",
-                         "|       >Jugar             Salir       |",
+                         "|      > Jugar             Salir       |",
                          "|--------------------------------------|",
                          "|               REGISTRO               |",
                          "|--------------------------------------|",
                          "| Movimentos ultima partida: %d        |",
                          "| Menor cantidad de movimientos: %d    |",
-                         "*--------------------------------------*"}; // Falta agregar record de movimientos y movimientos ultima partida
+                         "*--------------------------------------*",}; // Falta agregar record de movimientos y movimientos ultima partida
     mostrarMenu(menu);
     do
     {
         tecla = toupper(getch());
         fflush(stdin);
 
-        if (tecla == 'A' && puntero == 26)
+        if (tecla == 'A' && puntero == 25)
             puntero = moverIzquierdaMenu(menu, puntero);
 
-        if (tecla == 'D' && puntero == 8)
+        if (tecla == 'D' && puntero == 7)
             puntero = moverDerechaMenu(menu, puntero);
 
     } while (tecla != 13);
 
-    if (puntero == 8)
+    if (puntero == 7)
         opcion = 1;
-    if (puntero == 26)
+    if (puntero == 25)
         opcion = 2;
+
+    return opcion;
+}
+int seleccionarDificultad()
+{
+    int opcion, puntero = 5; // 5, 6, 7
+    char tecla;
+    char menuDificultad[9][40] = {"*--------------------------------------*",
+                                  "|          CAZADOR DE TESOROS          |",
+                                  "|--------------------------------------|",
+                                  "|        SELECCION DE DIFICULTAD       |",
+                                  "|--------------------------------------|",
+                                  "|             > FACIL                  |",
+                                  "|               MEDIO                  |",
+                                  "|               DIFICIL                |",
+                                  "*--------------------------------------*"};
+    mostrarMenuDificultad(menuDificultad);
+    do
+    {
+        tecla = toupper(getch());
+        fflush(stdin);
+
+        if (tecla == 'W' && puntero > 5)
+            puntero = moverArribaMenuDificultad(menuDificultad, puntero);
+
+        if (tecla == 'S' && puntero < 7)
+            puntero = moverAbajoMenuDificultad(menuDificultad, puntero);
+
+    } while (tecla != 13);
+    if (puntero == 5)
+        opcion = 1;
+    if (puntero == 6)
+        opcion = 2;
+    if (puntero == 7)
+        opcion = 3;
 
     return opcion;
 }
@@ -105,6 +147,17 @@ void mostrarMenu(char menu[10][40])
     {
         for (X = 0; X < 40; X++)
             printf("%c", menu[Y][X]);
+        printf("\n");
+    }
+}
+void mostrarMenuDificultad(char menuDificultad[9][40])
+{
+    int X, Y;
+    system("cls");
+    for (Y = 0; Y < 9; Y++)
+    {
+        for (X = 0; X < 40; X++)
+            printf("%c", menuDificultad[Y][X]);
         printf("\n");
     }
 }
@@ -208,12 +261,45 @@ void modoMedio()
     modo.ancho = 15;
     modo.tesoros = 10;
     modo.minas = 20;
+    posicion.cazadorX = 0;
+    posicion.cazadorY = 0;
+    movimientos = 0;
+    tesoros = modo.tesoros;
 
     char matriz[10][modo.ancho];
+    char tecla;
 
     llenarMatriz(matriz);
+    system("cls");
     imprimirMatriz(matriz);
-    getch();
+    do
+    {
+        do
+        {
+            tecla = toupper(getch());
+            fflush(stdin);
+        } while (tecla == 'W' && posicion.cazadorY == 0 ||
+                 tecla == 'A' && posicion.cazadorX == 0 ||
+                 tecla == 'S' && posicion.cazadorY == 9 ||
+                 tecla == 'D' && posicion.cazadorX == 14);
+        switch (tecla)
+        {
+        case 'W':
+            posicion = moverArriba(matriz);
+            break;
+        case 'A':
+            posicion = moverIzquierda(matriz);
+            break;
+        case 'S':
+            posicion = moverAbajo(matriz);
+            break;
+        case 'D':
+            posicion = moverDerecha(matriz);
+            break;
+        }
+        system("cls");
+        imprimirMatriz(matriz);
+    } while (tesoros != 0);
 }
 void modoDificil()
 {
@@ -221,14 +307,48 @@ void modoDificil()
     modo.ancho = 15;
     modo.tesoros = 20;
     modo.minas = 50;
+    posicion.cazadorX = 0;
+    posicion.cazadorY = 0;
+    movimientos = 0;
+    tesoros = modo.tesoros;
 
     char matriz[10][modo.ancho];
+    char tecla;
 
     llenarMatriz(matriz);
+    system("cls");
     imprimirMatriz(matriz);
-    getch();
+    do
+    {
+        do
+        {
+            tecla = toupper(getch());
+            fflush(stdin);
+        } while (tecla == 'W' && posicion.cazadorY == 0 ||
+                 tecla == 'A' && posicion.cazadorX == 0 ||
+                 tecla == 'S' && posicion.cazadorY == 9 ||
+                 tecla == 'D' && posicion.cazadorX == 14);
+        switch (tecla)
+        {
+        case 'W':
+            posicion = moverArriba(matriz);
+            break;
+        case 'A':
+            posicion = moverIzquierda(matriz);
+            break;
+        case 'S':
+            posicion = moverAbajo(matriz);
+            break;
+        case 'D':
+            posicion = moverDerecha(matriz);
+            break;
+        }
+        system("cls");
+        imprimirMatriz(matriz);
+    } while (tesoros != 0);
+    
 }
-// Movimientos
+// Movimientos del menu de principal
 int moverDerechaMenu(char menu[10][40], int puntero)
 {
     menu[3][puntero] = ' ';
@@ -245,6 +365,24 @@ int moverIzquierdaMenu(char menu[10][40], int puntero)
     mostrarMenu(menu);
     return puntero;
 }
+// Movimientos del menu de dificultad
+int moverArribaMenuDificultad(char menuDificultad[9][40], int puntero)
+{
+    menuDificultad[puntero][14] = ' ';
+    puntero--;
+    menuDificultad[puntero][14] = '>';
+    mostrarMenuDificultad(menuDificultad);
+    return puntero;
+}
+int moverAbajoMenuDificultad(char menuDificultad[9][40], int puntero)
+{
+    menuDificultad[puntero][14] = ' ';
+    puntero++;
+    menuDificultad[puntero][14] = '>';
+    mostrarMenuDificultad(menuDificultad);
+    return puntero;
+}
+// Movimientos del cazador
 struct cazador moverArriba(char matriz[10][modo.ancho])
 {
     movimientos++;
