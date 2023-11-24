@@ -19,7 +19,8 @@ struct parametros modo;
 struct cazador posicion;
 int movimientos, tesoros;
 // Funciones principales
-int seccionMenu(int, int);
+int seccionMenu(int ultimaPartida, int record);
+int calcularRecord(int ultimaPartida, int record, int partidas);
 int seleccionarDificultad();
 void mostrarMenu(char menu[10][40]);
 void mostrarMenuDificultad(char menuDificultad[9][40]);
@@ -43,7 +44,7 @@ struct cazador moverAbajo(char matriz[10][modo.ancho]);
 
 int main()
 {
-    int dificultad = 0, opcionMenu = 0, ultimaPartida = 0, record = 0;
+    int dificultad = 0, opcionMenu = 0, ultimaPartida = 0, record = 0, partidas = 0;
 
     while (opcionMenu != 2)
     {
@@ -53,14 +54,18 @@ int main()
             dificultad = seleccionarDificultad();
 
             if (dificultad == 1)
-                modoFacil();
+                ultimaPartida = modoFacil();
 
             if (dificultad == 2)
-                modoMedio();
+                ultimaPartida = modoMedio();
 
             if (dificultad == 3)
-                modoDificil();
+                ultimaPartida = modoDificil();
         }
+        
+        record = calcularRecord(ultimaPartida, record, partidas);
+        partidas++;
+
         if (opcionMenu == 2) // Salir
             break;
     }
@@ -71,17 +76,25 @@ int main()
 int seccionMenu(int ultimaPartida, int record)
 {
     int opcion, puntero = 7; // Posicion: 7 [Jugar], 25 [Salir]
-    char tecla;
-    char menu[10][40] = {"*--------------------------------------*",
-                         "|          CAZADOR DE TESOROS          |",
-                         "|--------------------------------------|",
-                         "|      > Jugar             Salir       |",
-                         "|--------------------------------------|",
-                         "|               REGISTRO               |",
-                         "|--------------------------------------|",
-                         "| Movimentos ultima partida:           |",
-                         "| Menor cantidad de movimientos:       |",
-                         "*--------------------------------------*",}; // Falta agregar record de movimientos y movimientos ultima partida
+    char tecla, strUltimaPartida[10], strRecord[10];
+    char menu[10][40] = {
+        "*--------------------------------------*",
+        "|          CAZADOR DE TESOROS          |",
+        "|--------------------------------------|",
+        "|      > Jugar             Salir       |",
+        "|--------------------------------------|",
+        "|               REGISTRO               |",
+        "|--------------------------------------|",
+        "| Movimentos ultima partida:           |",
+        "| Menor cantidad de movimientos:       |",
+        "*--------------------------------------*",
+    };                                              // Falta agregar record de movimientos y movimientos ultima partida
+    sprintf(strUltimaPartida, "%d", ultimaPartida); // Convierte int a cadena de caracteres
+    sprintf(strRecord, "%d", record);
+
+    sprintf(menu[7] + 29, "%s", strUltimaPartida);
+    sprintf(menu[8] + 33, "%s", strRecord);
+
     mostrarMenu(menu);
     do
     {
@@ -137,6 +150,13 @@ int seleccionarDificultad()
         opcion = 3;
 
     return opcion;
+}
+int calcularRecord(int ultimaPartida, int record, int partidas)
+{
+    if (partidas == 0 || record > ultimaPartida)
+        return ultimaPartida;
+    else
+        return record;
 }
 void mostrarMenu(char menu[10][40])
 {
